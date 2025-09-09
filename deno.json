@@ -1,0 +1,6 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "start": "deno run --allow-env --allow-net index.js"
+  }
+}
