@@ -1,9 +1,9 @@
 // index.js
-import { Client, GatewayIntentBits } from "npm:discord.js@14.14.1";
+import { Client, GatewayIntentBits } from "npm:discord.js@14.15.3";
 import googleTrends from "npm:google-trends-api@4.9.2";
 import { GoogleGenerativeAI } from "npm:@google/generative-ai@0.17.0";
 
-// 環境変数 (Deno Deploy の Dashboard で設定してください)
+// 環境変数
 const DISCORD_TOKEN = Deno.env.get("DISCORD_TOKEN");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const CHANNEL_ID = "1116735137594474577";
@@ -34,7 +34,6 @@ async function isNegativeTrend(trend) {
 async function postGoogleTrends() {
   try {
     const trends = await googleTrends.dailyTrends({ geo: "JP" });
-
     const json = JSON.parse(trends);
     const trendList = json.default.trendingSearchesDays[0].trendingSearches || [];
 
@@ -67,7 +66,7 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-// ✅ 2分ごとに実行 (Deno Deploy の cron)
+// ✅ Deno Deploy の cron (毎時0分に実行)
 Deno.cron("GoogleTrends", "0 * * * *", async () => {
   await postGoogleTrends();
 });
