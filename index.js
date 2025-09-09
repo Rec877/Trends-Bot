@@ -1,13 +1,11 @@
 // index.js
-import { Client, GatewayIntentBits } from "discord.js";
-import cron from "node-cron";
-import googleTrends from "google-trends-api";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import express from "express";
+import { Client, GatewayIntentBits } from "npm:discord.js@14.14.1";
+import googleTrends from "npm:google-trends-api@4.9.2";
+import { GoogleGenerativeAI } from "npm:@google/generative-ai@0.17.0";
 
-// 環境変数
-const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// 環境変数 (Deno Deploy の Dashboard で設定してください)
+const DISCORD_TOKEN = Deno.env.get("DISCORD_TOKEN");
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const CHANNEL_ID = "1116735137594474577";
 
 // Discordクライアント
@@ -35,13 +33,10 @@ async function isNegativeTrend(trend) {
 // トレンド取得＆投稿
 async function postGoogleTrends() {
   try {
-    const trends = await googleTrends.dailyTrends({
-      geo: "JP", // ✅ 日本限定
-    });
+    const trends = await googleTrends.dailyTrends({ geo: "JP" });
 
     const json = JSON.parse(trends);
-    const trendList =
-      json.default.trendingSearchesDays[0].trendingSearches || [];
+    const trendList = json.default.trendingSearchesDays[0].trendingSearches || [];
 
     for (const trend of trendList) {
       const title = trend.title.query;
@@ -70,24 +65,11 @@ async function postGoogleTrends() {
 // Bot準備完了
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
-
-  // 起動時に1回実行
-  postGoogleTrends();
-
-  // 毎時0分に実行
-  cron.schedule("0 * * * *", () => {
-    postGoogleTrends();
-  });
 });
 
-// ✅ 簡易Webサーバー
-const app = express();
-app.get("/", (req, res) => {
-  res.send("Bot is running!");
-});
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Web server running on port ${PORT}`);
+// ✅ 2分ごとに実行 (Deno Deploy の cron)
+Deno.cron("GoogleTrends", "0 * * * *", async () => {
+  await postGoogleTrends();
 });
 
-client.login(DISCORD_TOKEN);
+await client.login(DISCORD_TOKEN);
