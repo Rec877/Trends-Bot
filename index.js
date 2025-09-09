@@ -3,6 +3,7 @@ import { Client, GatewayIntentBits } from "discord.js";
 import cron from "node-cron";
 import googleTrends from "google-trends-api";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import express from "express";
 
 // 環境変数
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
@@ -27,7 +28,7 @@ async function isNegativeTrend(trend) {
     return text.includes("YES");
   } catch (e) {
     console.error("Gemini API error:", e);
-    return false; // 判定失敗時はポジティブ扱い
+    return false;
   }
 }
 
@@ -77,6 +78,16 @@ client.once("ready", () => {
   cron.schedule("0 * * * *", () => {
     postGoogleTrends();
   });
+});
+
+// ✅ 簡易Webサーバー
+const app = express();
+app.get("/", (req, res) => {
+  res.send("Bot is running!");
+});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Web server running on port ${PORT}`);
 });
 
 client.login(DISCORD_TOKEN);
