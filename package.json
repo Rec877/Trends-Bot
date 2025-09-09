@@ -1,0 +1,17 @@
+{
+  "name": "discord-trends-bot",
+  "version": "1.0.0",
+  "description": "Discord bot that posts Google Trends (Japan) topics, filtered with Gemini API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.17.0",
+    "discord.js": "^14.15.3",
+    "express": "^4.19.2",
+    "google-trends-api": "^4.9.2",
+    "node-cron": "^3.0.3"
+  }
+}
